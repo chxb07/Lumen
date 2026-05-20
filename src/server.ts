@@ -66,6 +66,26 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
+function appendSecurityHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  
+  // Define a secure Content Security Policy that supports Supabase, Google Fonts, and Unsplash images
+  headers.set(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://hmmknetlrsczzzdqoxgz.supabase.co wss://hmmknetlrsczzzdqoxgz.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://*.unsplash.com https://images.unsplash.com https://hmmknetlrsczzzdqoxgz.supabase.co; frame-ancestors 'none'; form-action *; upgrade-insecure-requests"
+  );
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     if (env && typeof env === "object") {
@@ -77,10 +97,11 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalizedResponse = await normalizeCatastrophicSsrResponse(response);
+      return appendSecurityHeaders(normalizedResponse);
     } catch (error) {
       console.error(error);
-      return brandedErrorResponse();
+      return appendSecurityHeaders(brandedErrorResponse());
     }
   },
 };
