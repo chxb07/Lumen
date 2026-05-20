@@ -89,7 +89,7 @@ function Shop() {
           {activeCat && <> · {activeCat.name}</>}
         </div>
         <h1 className="font-display text-4xl font-bold">
-          {activeCat?.name || params.q ? `"${params.q}"` : "All products"}
+          {activeCat?.name ? activeCat.name : params.q ? `"${params.q}"` : "All products"}
         </h1>
       </div>
 
