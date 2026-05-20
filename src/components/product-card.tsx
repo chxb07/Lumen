@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import type { Product } from "@/lib/types";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, optimizeUnsplashUrl } from "@/lib/format";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 
@@ -23,11 +23,12 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
       <Link to="/product/$slug" params={{ slug: product.slug }} className="block">
         <div className="relative aspect-[4/5] overflow-hidden bg-secondary">
           <img
-            src={product.images[0] || "https://placehold.co/600x750"}
+            src={optimizeUnsplashUrl(product.images[0], 500) || "https://placehold.co/600x750"}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
+
           <div className="absolute left-3 top-3 flex flex-col gap-1">
             {product.tags?.includes("new") && (
               <span className="rounded-full bg-foreground px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-background">

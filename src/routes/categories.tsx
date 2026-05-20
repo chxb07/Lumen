@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import type { Category } from "@/lib/types";
+import { optimizeUnsplashUrl } from "@/lib/format";
+
 
 export const Route = createFileRoute("/categories")({ component: Categories });
 
@@ -44,7 +46,7 @@ function Categories() {
               className="hover-lift group relative block aspect-[4/3] overflow-hidden rounded-3xl"
             >
               <img
-                src={COVERS[c.slug] || COVERS.apparel}
+                src={optimizeUnsplashUrl(COVERS[c.slug] || COVERS.apparel, 600)}
                 alt={c.name}
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />

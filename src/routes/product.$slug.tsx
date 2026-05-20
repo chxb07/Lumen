@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
 import type { Product } from "@/lib/types";
-import { formatPrice, formatDate } from "@/lib/format";
+import { formatPrice, formatDate, optimizeUnsplashUrl } from "@/lib/format";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/product/$slug")({ component: ProductPage });
@@ -94,7 +94,7 @@ function ProductPage() {
             className="overflow-hidden rounded-3xl border bg-secondary"
           >
             <img
-              src={product.images[imgIdx] || product.images[0]}
+              src={optimizeUnsplashUrl(product.images[imgIdx] || product.images[0], 800)}
               alt={product.name}
               className="aspect-square w-full object-cover"
             />
@@ -109,7 +109,11 @@ function ProductPage() {
                     i === imgIdx ? "border-primary" : "border-transparent"
                   }`}
                 >
-                  <img src={src} className="aspect-square w-full object-cover" />
+                  <img
+                    src={optimizeUnsplashUrl(src, 150)}
+                    alt={`${product.name} thumbnail ${i + 1}`}
+                    className="aspect-square w-full object-cover"
+                  />
                 </button>
               ))}
             </div>

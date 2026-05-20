@@ -9,6 +9,7 @@ import { ProductCardSkeleton } from "@/components/product-card-skeleton";
 import { Button } from "@/components/ui/button";
 import * as React from "react";
 import { toast } from "sonner";
+import { optimizeUnsplashUrl } from "@/lib/format";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -101,7 +102,7 @@ function Home() {
           >
             <div className="relative aspect-square overflow-hidden rounded-[2.5rem] border bg-card soft-shadow">
               <img
-                src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80"
+                src={optimizeUnsplashUrl("https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=80", 800)}
                 alt="Hero"
                 className="h-full w-full object-cover"
               />
@@ -208,7 +209,7 @@ function Home() {
                   className="group overflow-hidden rounded-2xl bg-white/10 backdrop-blur"
                 >
                   <img
-                    src={p.images[0]}
+                    src={optimizeUnsplashUrl(p.images[0], 400)}
                     alt={p.name}
                     className="aspect-square w-full object-cover transition-transform group-hover:scale-105"
                   />
