@@ -66,19 +66,53 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
-function appendSecurityHeaders(response: Response): Response {
+function injectNonceAndHeaders(response: Response, htmlText: string): Response {
+  // Use crypto.randomUUID() if available (Cloudflare/Node 19+), fallback to random string generator
+  const nonce = (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") 
+    ? crypto.randomUUID() 
+    : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
   const headers = new Headers(response.headers);
   
-  // Define a secure Content Security Policy that supports Supabase, Google Fonts, and Unsplash images
+  // Define a secure Content Security Policy using the per-request nonce
   headers.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://hmmknetlrsczzzdqoxgz.supabase.co wss://hmmknetlrsczzzdqoxgz.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://*.unsplash.com https://images.unsplash.com https://hmmknetlrsczzzdqoxgz.supabase.co; frame-ancestors 'none'; form-action *; upgrade-insecure-requests"
+    `default-src 'self'; script-src 'self' 'nonce-${nonce}'; connect-src 'self' https://hmmknetlrsczzzdqoxgz.supabase.co wss://hmmknetlrsczzzdqoxgz.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://*.unsplash.com https://images.unsplash.com https://hmmknetlrsczzzdqoxgz.supabase.co; frame-ancestors 'none'; base-uri 'none'; form-action *; upgrade-insecure-requests`
   );
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Frame-Options", "DENY");
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
+  // Inject nonce attribute to script tags (excluding type="application/json")
+  const body = htmlText.replace(/<script([\s\S]*?)>/gi, (match, attrs) => {
+    if (attrs.includes('type="application/json"') || attrs.includes("type='application/json'")) {
+      return match;
+    }
+    return `<script${attrs} nonce="${nonce}">`;
+  });
+
+  return new Response(body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
+async function handleResponse(response: Response): Promise<Response> {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("text/html")) {
+    const htmlText = await response.text();
+    return injectNonceAndHeaders(response, htmlText);
+  }
+  
+  // Non-HTML responses get regular security headers without CSP nonce
+  const headers = new Headers(response.headers);
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
@@ -98,10 +132,10 @@ export default {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       const normalizedResponse = await normalizeCatastrophicSsrResponse(response);
-      return appendSecurityHeaders(normalizedResponse);
+      return await handleResponse(normalizedResponse);
     } catch (error) {
       console.error(error);
-      return appendSecurityHeaders(brandedErrorResponse());
+      return await handleResponse(brandedErrorResponse());
     }
   },
 };
