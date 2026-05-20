@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import shoppingIcon from "@/shopping.png";
+
 const NAV = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
@@ -47,9 +49,7 @@ export function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold tracking-tight">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-primary via-fuchsia-500 to-accent text-primary-foreground shadow-lg">
-            <ShoppingBag className="h-4 w-4" />
-          </span>
+          <img src={shoppingIcon} alt="Lumen Logo" className="h-8 w-8 object-contain" />
           <span className="gradient-text">Lumen</span>
         </Link>
 

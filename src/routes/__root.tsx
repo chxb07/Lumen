@@ -17,6 +17,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 
 import appCss from "../styles.css?url";
+import shoppingIcon from "../shopping.png";
 
 function NotFoundComponent() {
   return (
@@ -86,7 +87,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: shoppingIcon }
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
