@@ -1,12 +1,16 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Twitter, Github, Mail } from "lucide-react";
+import shoppingIcon from "@/shopping.png";
 
 export function Footer() {
   return (
     <footer className="mt-24 border-t bg-gradient-to-b from-background to-secondary/30">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-5 lg:px-8">
         <div className="lg:col-span-2">
-          <div className="font-display text-xl font-bold gradient-text">Lumen</div>
+          <div className="flex items-center gap-2">
+            <img src={shoppingIcon} alt="Lumen Logo" className="h-6 w-6 object-contain" />
+            <div className="font-display text-xl font-bold gradient-text">Lumen</div>
+          </div>
           <p className="mt-3 max-w-sm text-sm text-muted-foreground">
             Premium goods, designed without compromise. Crafted to last, priced to live with.
           </p>

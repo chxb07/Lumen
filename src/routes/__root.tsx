@@ -99,10 +99,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  const getEnvVal = (key: string) => {
+    if (typeof process !== "undefined" && process.env) {
+      return process.env[key];
+    }
+    return undefined;
+  };
+
+  const supabaseUrl = getEnvVal("SUPABASE_URL") || getEnvVal("VITE_SUPABASE_URL") || "";
+  const supabaseKey = getEnvVal("SUPABASE_PUBLISHABLE_KEY") || getEnvVal("VITE_SUPABASE_PUBLISHABLE_KEY") || "";
+
+  const envScript = `window.ENV = {
+    SUPABASE_URL: ${JSON.stringify(supabaseUrl)},
+    SUPABASE_PUBLISHABLE_KEY: ${JSON.stringify(supabaseKey)}
+  };`;
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: envScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
